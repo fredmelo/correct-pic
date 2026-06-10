@@ -55,7 +55,7 @@ Documents: `.pdf` — each page becomes its own numbered `casal-XX.png`
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LAYOUTS` | `[(6, 5), (5, 4)]` | Grid configurations to generate; add/remove tuples to change |
-| `CANVAS_W / CANVAS_H` | 1920 / 1080 | Collage canvas size |
+| `CANVAS_SIZES` | `[("1080p", 1920, 1080), ("4k", 3840, 2160)]` | Resolutions to generate; each is a `(label, width, height)` tuple |
+| `LAYOUTS` | `[(6, 5), (5, 4)]` | Grid configurations; add/remove `(cols, rows)` tuples |
 
-Each layout produces files named `collage-{cols}x{rows}-{n:02d}.png` in `collage/`. Tile size is derived automatically (`CANVAS_W // cols` × `CANVAS_H // rows`); tiles are center-cropped to fill.
+Output files are named `collage-{res}-{cols}x{rows}-{n:02d}.png` in `collage/`. Tile size is derived automatically (`width // cols` × `height // rows`); tiles are center-cropped to fill.

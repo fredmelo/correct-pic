@@ -1,21 +1,23 @@
-# CLAUDE.md
+# correct-pic
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Two-step pipeline for wedding photo slideshow preparation.
 
-## What this project does
+## Pipeline
 
-Two-step pipeline for wedding photo slideshow preparation:
+```
+input/  →  convert_to_png.py  →  output/  →  make_collage.py  →  collage/
+```
 
 1. **`convert_to_png.py`** — converts every image/PDF in `input/` into a 1920×1080 PNG in `output/`, named `casal-01.png`, `casal-02.png`, …
-2. **`make_collage.py`** — reads `casal-*.png` from `output/` and assembles tiled collage pages saved to `collage/`
+2. **`make_collage.py`** — reads `casal-*.png` from `output/` and assembles tiled collage pages into `collage/`
 
-### Frame layout (`convert_to_png.py`)
+## Install
 
-Each output frame composites two layers:
-- **Background**: source image scaled to cover 1920×1080, center-cropped, Gaussian-blurred (radius 50)
-- **Foreground**: source image letterboxed to fit within 1920×1080, centered on top
+```bash
+pip install Pillow pillow-heif pymupdf
+```
 
-## Running the scripts
+## Usage
 
 ```bash
 # Step 1 — convert input/ → output/
@@ -25,37 +27,28 @@ python3 convert_to_png.py
 python3 make_collage.py
 ```
 
-Re-running either script overwrites existing output. If `input/` changes, clear `output/` before re-running `convert_to_png.py` to keep sequential numbering clean.
-
-## Dependencies
-
-```bash
-pip install Pillow pillow-heif pymupdf
-```
-
-- **Pillow** — core image processing (both scripts)
-- **pillow-heif** — HEIC/HEIF support, registered at import time in `convert_to_png.py`
-- **pymupdf (fitz)** — PDF-to-image rendering at 2× scale (~144 dpi)
+If `input/` changes, clear `output/` before re-running `convert_to_png.py` to keep the sequential numbering clean.
 
 ## Supported input formats
 
 Images: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.tiff`, `.tif`, `.gif`, `.webp`, `.heic`, `.heif`  
 Documents: `.pdf` — each page becomes its own numbered `casal-XX.png`
 
-## Key parameters
+## Frame layout
 
-**`convert_to_png.py`**
+Each `casal-XX.png` composites two layers:
+- **Background**: source image scaled to cover 1920×1080, center-cropped, Gaussian-blurred (radius 50)
+- **Foreground**: source image letterboxed to fit within 1920×1080, centered on top
 
-| Constant | Value | Purpose |
-|---|---|---|
-| `TARGET_W / TARGET_H` | 1920 / 1080 | Output canvas size |
-| `BLUR_RADIUS` | 50 | Background blur intensity |
+## Collage output
 
-**`make_collage.py`**
+Each run of `make_collage.py` produces collages for every combination of resolution and grid layout:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `LAYOUTS` | `[(6, 5), (5, 4)]` | Grid configurations to generate; add/remove tuples to change |
-| `CANVAS_W / CANVAS_H` | 1920 / 1080 | Collage canvas size |
+| Resolution | Grid | Tiles/page | Files |
+|---|---|---|---|
+| 1080p (1920×1080) | 6×5 | 30 | `collage-1080p-6x5-01.png`, … |
+| 1080p (1920×1080) | 5×4 | 20 | `collage-1080p-5x4-01.png`, … |
+| 4K (3840×2160) | 6×5 | 30 | `collage-4k-6x5-01.png`, … |
+| 4K (3840×2160) | 5×4 | 20 | `collage-4k-5x4-01.png`, … |
 
-Each layout produces files named `collage-{cols}x{rows}-{n:02d}.png` in `collage/`. Tile size is derived automatically (`CANVAS_W // cols` × `CANVAS_H // rows`); tiles are center-cropped to fill.
+To add a resolution or grid, edit `CANVAS_SIZES` or `LAYOUTS` in `make_collage.py`.
